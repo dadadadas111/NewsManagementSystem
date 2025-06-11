@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Service;
 using BussinessObject.Models;
+using API.DTOs;
 
 namespace API.Controllers;
 
@@ -11,15 +12,33 @@ public class TagController : ControllerBase
 {
     private readonly TagService _service = new();
 
+    /// <remarks>
+    /// <b>OData Query Options Supported:</b><br/>
+    /// <ul>
+    /// <li><code>$orderby</code> (e.g. <code>?$orderby=TagName</code>)</li>
+    /// <li><code>$top</code> (e.g. <code>?$top=10</code>)</li>
+    /// <li><code>$skip</code> (e.g. <code>?$skip=10</code>)</li>
+    /// <li><code>$filter</code> (e.g. <code>?$filter=TagId gt 1</code>)</li>
+    /// </ul>
+    /// </remarks>
+    /// <summary>
+    /// Gets all tags. Supports OData query options: $orderby, $top, $skip, $filter.
+    /// Example: /api/Tag?$orderby=TagName&$top=10
+    /// </summary>
+    /// <returns>Queryable list of Tag</returns>
     [HttpGet]
     [EnableQuery]
-    public IQueryable<Tag> GetAll() => _service.GetAll().AsQueryable();
+    public IQueryable<TagDto> GetAll()
+    {
+        return _service.GetAll().Select(TagMapper.ToDto).AsQueryable();
+    }
 
     [HttpGet("{id}")]
     public IActionResult GetById(int id)
     {
         var item = _service.GetById(id);
-        return item == null ? NotFound() : Ok(item);
+        if (item == null) return NotFound();
+        return Ok(TagMapper.ToDto(item));
     }
 
     [HttpPost]

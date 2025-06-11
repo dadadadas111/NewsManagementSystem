@@ -8,11 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddOData(options =>
 {
     options.Select().Filter().OrderBy().Expand().Count().SetMaxTop(100);
-}).AddJsonOptions(options =>
+})
+.AddJsonOptions(options =>
 {
     // Use IgnoreCycles for clean, standard JSON output
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.Never;
+    options.JsonSerializerOptions.MaxDepth = 10; // Limit JSON serialization depth to 3
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

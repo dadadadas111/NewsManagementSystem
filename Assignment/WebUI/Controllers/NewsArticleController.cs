@@ -33,14 +33,18 @@ public class NewsArticleController : Controller
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<IActionResult> Index(string? search, string? orderby, int? top, int? skip)
+    public async Task<IActionResult> Index(string? search, string? orderby, int? top, int? page)
     {
         var client = _httpClientFactory.CreateClient();
+        int pageSize = top ?? 10;
+        int pageNumber = page ?? 1;
+        if (pageNumber < 1) pageNumber = 1;
+        int skip = (pageNumber - 1) * pageSize;
         var odataParams = new List<string>();
         if (!string.IsNullOrWhiteSpace(search)) odataParams.Add("search=" + Uri.EscapeDataString(search));
         if (!string.IsNullOrWhiteSpace(orderby)) odataParams.Add("$orderby=" + orderby);
-        if (top.HasValue) odataParams.Add("$top=" + top);
-        if (skip.HasValue) odataParams.Add("$skip=" + skip);
+        odataParams.Add("$top=" + pageSize);
+        odataParams.Add("$skip=" + skip);
         string odataQuery = odataParams.Count > 0 ? ("?" + string.Join("&", odataParams)) : string.Empty;
         string url = $"https://localhost:7100/api/NewsArticle{odataQuery}";
         var response = await client.GetAsync(url);
