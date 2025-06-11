@@ -1,0 +1,99 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# NuGet
+*.nupkg
+# NuGet Packages folder can be ignored if using package restore
+**/packages/*
+!**/packages/build/
+!**/packages/repositories.config
+
+# Entity Framework
+*.dbmdl
+*.jfm
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# SQL Server files
+*.mdf
+*.ldf
+
+# Logs
+*.log
+
+# OS generated files
+[Tt]humbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.DS_Store
+
+# Rider
+.idea/
+*.sln.iml
+
+# Others
+*.swp
+*.bak
+*.tmp
+*.old
+*.orig
+
+# User-specific files
+*.vspscc
+*.vssscc
+*.userprefs
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# DotCover
+.idea/.dotCover
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# CodeRush
+.cr/
+
+# NCrunch
+.ncrunch*
+*crunch*.local.xml
+
+# Visual Studio Code
+.vscode/
+.history/
+
+# Local secrets
+secrets.json
+
+# SQL
+*.sql
+
+# Others
+*.cache
+*.pdb
+*.db
+*.sqlite
+*.bak
+*.tmp
+*.old
+*.orig
+
+# Ignore publish output
+publish/

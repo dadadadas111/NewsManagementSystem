@@ -1,0 +1,65 @@
+using BussinessObject.Contexts;
+using BussinessObject.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace DataAccessLayer;
+
+public class CategoryDAO
+{
+    private static CategoryDAO? instance;
+    private static readonly object lockObj = new();
+    private readonly FUNewsManagementContext context;
+
+    private CategoryDAO()
+    {
+        context = new FUNewsManagementContext();
+    }
+
+    public static CategoryDAO Instance
+    {
+        get
+        {
+            lock (lockObj)
+            {
+                return instance ??= new CategoryDAO();
+            }
+        }
+    }
+
+    public List<Category> GetAll()
+    {
+        return context.Categories.Include(c => c.ParentCategory).Include(c => c.NewsArticles).ToList();
+    }
+
+    public Category? GetById(short id)
+    {
+        return context.Categories.Include(c => c.ParentCategory).Include(c => c.NewsArticles).FirstOrDefault(c => c.CategoryId == id);
+    }
+
+    public void Add(Category category)
+    {
+        context.Categories.Add(category);
+        context.SaveChanges();
+    }
+
+    public void Update(Category category)
+    {
+        context.Categories.Update(category);
+        context.SaveChanges();
+    }
+
+    public void Delete(short id)
+    {
+        var category = context.Categories.Find(id);
+        if (category != null)
+        {
+            context.Categories.Remove(category);
+            context.SaveChanges();
+        }
+    }
+
+    public List<Category> Search(string keyword)
+    {
+        return context.Categories.Where(c => c.CategoryName.Contains(keyword) || c.CategoryDesciption.Contains(keyword)).ToList();
+    }
+}
