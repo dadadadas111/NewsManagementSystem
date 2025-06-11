@@ -12,20 +12,6 @@ public class TagController : ControllerBase
 {
     private readonly TagService _service = new();
 
-    /// <remarks>
-    /// <b>OData Query Options Supported:</b><br/>
-    /// <ul>
-    /// <li><code>$orderby</code> (e.g. <code>?$orderby=TagName</code>)</li>
-    /// <li><code>$top</code> (e.g. <code>?$top=10</code>)</li>
-    /// <li><code>$skip</code> (e.g. <code>?$skip=10</code>)</li>
-    /// <li><code>$filter</code> (e.g. <code>?$filter=TagId gt 1</code>)</li>
-    /// </ul>
-    /// </remarks>
-    /// <summary>
-    /// Gets all tags. Supports OData query options: $orderby, $top, $skip, $filter.
-    /// Example: /api/Tag?$orderby=TagName&$top=10
-    /// </summary>
-    /// <returns>Queryable list of Tag</returns>
     [HttpGet]
     [EnableQuery]
     public IQueryable<TagDto> GetAll()

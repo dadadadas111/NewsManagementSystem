@@ -12,20 +12,6 @@ public class CategoryController : ControllerBase
 {
     private readonly CategoryService _service = new();
 
-    /// <remarks>
-    /// <b>OData Query Options Supported:</b><br/>
-    /// <ul>
-    /// <li><code>$orderby</code> (e.g. <code>?$orderby=CategoryName</code>)</li>
-    /// <li><code>$top</code> (e.g. <code>?$top=10</code>)</li>
-    /// <li><code>$skip</code> (e.g. <code>?$skip=10</code>)</li>
-    /// <li><code>$filter</code> (e.g. <code>?$filter=CategoryId gt 1</code>)</li>
-    /// </ul>
-    /// </remarks>
-    /// <summary>
-    /// Gets all categories. Supports OData query options: $orderby, $top, $skip, $filter.
-    /// Example: /api/Category?$orderby=CategoryName&$top=10
-    /// </summary>
-    /// <returns>Queryable list of Category</returns>
     [HttpGet]
     [EnableQuery]
     public IQueryable<CategoryDto> GetAll()
