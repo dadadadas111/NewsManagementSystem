@@ -3,6 +3,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Collections.Generic;
+using WebUI.Models;
+using System.Text;
+using System.Net.Http.Headers;
 
 namespace WebUI.Controllers;
 
@@ -34,5 +37,33 @@ public class TagController : Controller
         var json = await response.Content.ReadAsStringAsync();
         var tags = JsonSerializer.Deserialize<List<TagViewModel>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         return View(tags);
+    }
+
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateTagViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+        var client = _httpClientFactory.CreateClient();
+        var json = JsonSerializer.Serialize(new {
+            TagId = model.TagId,
+            TagName = model.TagName,
+            Note = model.Note
+        });
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await client.PostAsync("https://localhost:7100/api/Tag", content);
+        if (response.IsSuccessStatusCode)
+        {
+            return RedirectToAction("Index");
+        }
+        var error = await response.Content.ReadAsStringAsync();
+        ViewBag.ApiError = error;
+        return View(model);
     }
 }

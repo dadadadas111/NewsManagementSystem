@@ -1,0 +1,40 @@
+@model WebUI.Models.CreateCategoryViewModel
+@{
+    ViewData["Title"] = "Create Category";
+    var error = ViewBag.ApiError as string;
+}
+<h2>Create Category</h2>
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger">@error</div>
+}
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="CategoryName" class="form-label"></label>
+        <input asp-for="CategoryName" class="form-control" />
+        <span asp-validation-for="CategoryName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="CategoryDescription" class="form-label"></label>
+        <textarea asp-for="CategoryDescription" class="form-control"></textarea>
+        <span asp-validation-for="CategoryDescription" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Parent Category</label>
+        <select asp-for="ParentCategoryId" class="form-select" asp-items="ViewBag.ParentCategories">
+            <option value="">-- None --</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="IsActive" class="form-label">Active</label>
+        <select asp-for="IsActive" class="form-select">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

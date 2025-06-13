@@ -1,9 +1,7 @@
 # News Management System - TODO
 
 ## 1. Details View
-- Implement a details view for NewsArticle, Category, Tag, and SystemAccount in the WebUI.
-- Add corresponding API endpoints to fetch single entity details if not already present.
-- Ensure the details view displays all relevant fields, including related entities (e.g., show Category and Tags for a NewsArticle).
+DONE
 
 ## 2. Create Functionality
 ### API

@@ -3,14 +3,17 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Collections.Generic;
+using WebUI.Models;
+using System.Text;
+using System.Net.Http.Headers;
 
 namespace WebUI.Controllers;
 
 public class CategoryViewModel
 {
     public short CategoryId { get; set; }
-    public string CategoryName { get; set; }
-    public string CategoryDesciption { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
+    public string CategoryDescription { get; set; } = string.Empty;
 }
 
 public class CategoryController : Controller
@@ -34,5 +37,63 @@ public class CategoryController : Controller
         var json = await response.Content.ReadAsStringAsync();
         var categories = JsonSerializer.Deserialize<List<CategoryViewModel>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         return View(categories);
+    }
+
+    public async Task<IActionResult> Details(short id)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.GetAsync($"https://localhost:7100/api/Category/{id}");
+        if (!response.IsSuccessStatusCode)
+        {
+            return NotFound();
+        }
+        var json = await response.Content.ReadAsStringAsync();
+        var category = JsonSerializer.Deserialize<CategoryViewModel>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        if (category == null)
+        {
+            return NotFound();
+        }
+        return View(category);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Create()
+    {
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.GetAsync("https://localhost:7100/api/Category");
+        var json = await response.Content.ReadAsStringAsync();
+        var categories = JsonSerializer.Deserialize<List<CategoryViewModel>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        ViewBag.ParentCategories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(categories, "CategoryId", "CategoryName");
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateCategoryViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            var client2 = _httpClientFactory.CreateClient();
+            var response2 = await client2.GetAsync("https://localhost:7100/api/Category");
+            var json2 = await response2.Content.ReadAsStringAsync();
+            var categories2 = JsonSerializer.Deserialize<List<CategoryViewModel>>(json2, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            ViewBag.ParentCategories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(categories2, "CategoryId", "CategoryName");
+            return View(model);
+        }
+        var clientPost = _httpClientFactory.CreateClient();
+        var jsonPost = JsonSerializer.Serialize(model);
+        var content = new StringContent(jsonPost, Encoding.UTF8, "application/json");
+        var responsePost = await clientPost.PostAsync("https://localhost:7100/api/Category", content);
+        if (responsePost.IsSuccessStatusCode)
+        {
+            return RedirectToAction("Index");
+        }
+        var error = await responsePost.Content.ReadAsStringAsync();
+        ViewBag.ApiError = error;
+        var client3 = _httpClientFactory.CreateClient();
+        var response3 = await client3.GetAsync("https://localhost:7100/api/Category");
+        var json3 = await response3.Content.ReadAsStringAsync();
+        var categories3 = JsonSerializer.Deserialize<List<CategoryViewModel>>(json3, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        ViewBag.ParentCategories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(categories3, "CategoryId", "CategoryName");
+        return View(model);
     }
 }

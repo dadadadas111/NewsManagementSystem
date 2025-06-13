@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.OData.Query;
 using Service;
 using BussinessObject.Models;
 using API.DTOs;
+using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace API.Controllers;
 
@@ -28,8 +30,17 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Add(Category category)
+    public IActionResult Add([FromBody] CreateCategoryDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        var category = new Category
+        {
+            CategoryName = dto.CategoryName,
+            CategoryDesciption = dto.CategoryDescription ?? string.Empty,
+            ParentCategoryId = dto.ParentCategoryId,
+            IsActive = dto.IsActive ?? true
+        };
         _service.Add(category);
         return CreatedAtAction(nameof(GetById), new { id = category.CategoryId }, category);
     }

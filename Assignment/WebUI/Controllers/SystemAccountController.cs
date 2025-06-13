@@ -3,6 +3,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Collections.Generic;
+using WebUI.Models;
+using System.Text;
+using System.Net.Http.Headers;
 
 namespace WebUI.Controllers;
 
@@ -35,5 +38,35 @@ public class SystemAccountController : Controller
         var json = await response.Content.ReadAsStringAsync();
         var accounts = JsonSerializer.Deserialize<List<SystemAccountViewModel>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         return View(accounts);
+    }
+
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateSystemAccountViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+        var client = _httpClientFactory.CreateClient();
+        var json = JsonSerializer.Serialize(new {
+            AccountId = model.AccountId,
+            AccountName = model.AccountName,
+            AccountEmail = model.AccountEmail,
+            AccountRole = model.AccountRole,
+            AccountPassword = model.AccountPassword
+        });
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await client.PostAsync("https://localhost:7100/api/SystemAccount", content);
+        if (response.IsSuccessStatusCode)
+        {
+            return RedirectToAction("Index");
+        }
+        var error = await response.Content.ReadAsStringAsync();
+        ViewBag.ApiError = error;
+        return View(model);
     }
 }

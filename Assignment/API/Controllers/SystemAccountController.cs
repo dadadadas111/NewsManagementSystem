@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.OData.Query;
 using Service;
 using BussinessObject.Models;
 using API.DTOs;
+using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace API.Controllers;
 
@@ -28,8 +30,18 @@ public class SystemAccountController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Add(SystemAccount account)
+    public IActionResult Add([FromBody] CreateSystemAccountDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        var account = new SystemAccount
+        {
+            AccountId = dto.AccountId ?? 0, // Use supplied AccountId if present, else 0 (auto-increment if not supplied)
+            AccountName = dto.AccountName,
+            AccountEmail = dto.AccountEmail,
+            AccountRole = dto.AccountRole,
+            AccountPassword = dto.AccountPassword
+        };
         _service.Add(account);
         return CreatedAtAction(nameof(GetById), new { id = account.AccountId }, account);
     }

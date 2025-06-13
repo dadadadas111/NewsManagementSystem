@@ -1,0 +1,51 @@
+@model WebUI.Controllers.NewsArticleViewModel
+@{
+    ViewData["Title"] = "News Article Details";
+}
+
+<h2>News Article Details</h2>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Title</dt>
+            <dd class="col-sm-9">@Model.NewsTitle</dd>
+
+            <dt class="col-sm-3">Headline</dt>
+            <dd class="col-sm-9">@Model.Headline</dd>
+
+            <dt class="col-sm-3">Content</dt>
+            <dd class="col-sm-9">@Model.NewsContent</dd>
+
+            <dt class="col-sm-3">Source</dt>
+            <dd class="col-sm-9">@Model.NewsSource</dd>
+
+            <dt class="col-sm-3">Category</dt>
+            <dd class="col-sm-9">@Model.CategoryName</dd>
+
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">@(Model.NewsStatus == true ? "Active" : "Inactive")</dd>
+
+            <dt class="col-sm-3">Created Date</dt>
+            <dd class="col-sm-9">@Model.CreatedDate</dd>
+
+            <dt class="col-sm-3">Tags</dt>
+            <dd class="col-sm-9">
+                @if (Model.Tags != null && Model.Tags.Count > 0)
+                {
+                    <ul class="list-inline mb-0">
+                        @foreach (var tag in Model.Tags)
+                        {
+                            <li class="list-inline-item badge bg-secondary">@tag.TagName</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <span class="text-muted">No tags</span>
+                }
+            </dd>
+        </dl>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

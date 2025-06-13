@@ -63,7 +63,7 @@
             </form>
         </div>
         <div class="col-md-6 text-end">
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">Create New Article</button>
+            <a asp-action="Create" class="btn btn-success">Create New Article</a>
         </div>
     </div>
     <!-- Pagination controls -->
@@ -100,6 +100,7 @@
                 <td>@(item.NewsStatus == true ? "Active" : "Inactive")</td>
                 <td>@item.CreatedDate</td>
                 <td>
+                    <a asp-action="Details" asp-route-id="@item.NewsArticleId" class="btn btn-sm btn-info me-1">Details</a>
                     <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#editModal-@item.NewsArticleId">Edit</button>
                     <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@item.NewsArticleId">Delete</button>
                 </td>

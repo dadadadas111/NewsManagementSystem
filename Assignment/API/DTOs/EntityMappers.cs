@@ -10,7 +10,8 @@ namespace API.DTOs
             return new CategoryDto
             {
                 CategoryId = entity.CategoryId,
-                CategoryName = entity.CategoryName
+                CategoryName = entity.CategoryName,
+                CategoryDescription = entity.CategoryDesciption
             };
         }
     }
@@ -22,7 +23,8 @@ namespace API.DTOs
             return new TagDto
             {
                 TagId = entity.TagId,
-                TagName = entity.TagName
+                TagName = entity.TagName,
+                Note = entity.Note,
             };
         }
     }
@@ -34,7 +36,9 @@ namespace API.DTOs
             return new SystemAccountDto
             {
                 AccountId = entity.AccountId,
-                AccountName = entity.AccountName
+                AccountName = entity.AccountName,
+                AccountEmail = entity.AccountEmail,
+                AccountRole = entity.AccountRole,
             };
         }
     }

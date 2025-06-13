@@ -38,6 +38,14 @@ public class NewsArticleDAO
 
     public void Add(NewsArticle newsArticle)
     {
+        // Fix: Attach tags from the current context to avoid tracking conflicts
+        var tagIds = newsArticle.Tags.Select(t => t.TagId).Distinct().ToList();
+        newsArticle.Tags.Clear();
+        var tagsFromDb = context.Tags.Where(t => tagIds.Contains(t.TagId)).ToList();
+        foreach (var tag in tagsFromDb)
+        {
+            newsArticle.Tags.Add(tag);
+        }
         context.NewsArticles.Add(newsArticle);
         context.SaveChanges();
     }
