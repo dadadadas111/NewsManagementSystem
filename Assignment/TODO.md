@@ -5,14 +5,16 @@ DONE
 
 ## 2. Create Functionality
 ### API
-- Implement POST endpoints for creating NewsArticle, Category, Tag, and SystemAccount if not already present.
-- Apply data type validation and model validation attributes (e.g., [Required], [StringLength], [Range]) for all DTO fields.
-- Return appropriate error responses for invalid data.
+- DONE: Implement POST endpoints for creating NewsArticle, Category, Tag, and SystemAccount.
+- DONE: Apply data type validation and model validation attributes (e.g., [Required], [StringLength], [Range]) for all DTO fields.
+- DONE: Allow user-supplied TagId and AccountId for Tag and SystemAccount creation.
+- DONE: Return appropriate error responses for invalid data.
 
 ### WebUI
-- Add a user-friendly form for creating each entity (NewsArticle, Category, Tag, SystemAccount).
-- Use proper input types, validation messages, and dropdowns for related entities.
-- Ensure the UI is modern, accessible, and responsive.
+- DONE: Add a user-friendly form for creating each entity (NewsArticle, Category, Tag, SystemAccount).
+- DONE: Use proper input types, validation messages, and dropdowns for related entities.
+- DONE: Allow user to specify TagId and AccountId for Tag and SystemAccount creation.
+- DONE: Ensure the UI is modern, accessible, and responsive.
 
 ## 3. Update Functionality
 ### API
