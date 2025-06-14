@@ -12,7 +12,6 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "AdminOrStaff")]
 public class TagController : ControllerBase
 {
     private readonly TagService _service = new();
@@ -23,6 +22,7 @@ public class TagController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     [EnableQuery]
     public IQueryable<TagDto> GetAll()
     {
@@ -31,6 +31,7 @@ public class TagController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public IActionResult GetById(int id)
     {
         _logger.LogInformation($"TagController.GetById called with id={id}");
@@ -40,6 +41,7 @@ public class TagController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOrStaff")]
     public IActionResult Add([FromBody] CreateTagDto dto)
     {
         _logger.LogInformation($"TagController.Add called with TagName={dto.TagName}");
@@ -56,6 +58,7 @@ public class TagController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Policy = "AdminOrStaff")]
     public IActionResult Update(int id, [FromBody] UpdateTagDto dto)
     {
         _logger.LogInformation($"TagController.Update called with id={id}, TagName={dto.TagName}");
@@ -74,6 +77,7 @@ public class TagController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOrStaff")]
     public IActionResult Delete(int id)
     {
         _logger.LogInformation($"TagController.Delete called with id={id}");

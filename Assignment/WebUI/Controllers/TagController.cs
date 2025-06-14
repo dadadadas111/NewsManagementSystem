@@ -24,6 +24,15 @@ public class TagController : Controller
         _httpClientFactory = httpClientFactory;
     }
 
+    private void AttachJwt(HttpClient client)
+    {
+        var token = HttpContext.Session.GetString("JWToken");
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+    }
+
     public async Task<IActionResult> Index(string? orderby, int? top, int? skip)
     {
         var client = _httpClientFactory.CreateClient();
@@ -51,6 +60,7 @@ public class TagController : Controller
         if (!ModelState.IsValid)
             return View(model);
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var json = JsonSerializer.Serialize(new {
             TagId = model.TagId,
             TagName = model.TagName,
@@ -71,6 +81,7 @@ public class TagController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var response = await client.GetAsync($"https://localhost:7100/api/Tag/{id}");
         if (!response.IsSuccessStatusCode)
             return NotFound();
@@ -80,16 +91,17 @@ public class TagController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Edit(CreateTagViewModel model)
+    public async Task<IActionResult> Edit(int id, EditTagViewModel model)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var json = JsonSerializer.Serialize(new {
-            TagId = model.TagId,
+            TagId = id,
             TagName = model.TagName,
             Note = model.Note
         });
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await client.PutAsync($"https://localhost:7100/api/Tag/{model.TagId}", content);
+        var response = await client.PutAsync($"https://localhost:7100/api/Tag/{id}", content);
         if (response.IsSuccessStatusCode)
         {
             return RedirectToAction("Index");
@@ -103,6 +115,7 @@ public class TagController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var response = await client.DeleteAsync($"https://localhost:7100/api/Tag/{id}");
         // Optionally handle errors
         return RedirectToAction("Index");

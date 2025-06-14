@@ -25,9 +25,19 @@ public class SystemAccountController : Controller
         _httpClientFactory = httpClientFactory;
     }
 
+    private void AttachJwt(HttpClient client)
+    {
+        var token = HttpContext.Session.GetString("JWToken");
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+    }
+
     public async Task<IActionResult> Index(string? orderby, int? top, int? skip)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var odataParams = new List<string>();
         if (!string.IsNullOrWhiteSpace(orderby)) odataParams.Add("$orderby=" + orderby);
         if (top.HasValue) odataParams.Add("$top=" + top);
@@ -52,6 +62,7 @@ public class SystemAccountController : Controller
         if (!ModelState.IsValid)
             return View(model);
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var json = JsonSerializer.Serialize(new {
             AccountId = model.AccountId,
             AccountName = model.AccountName,
@@ -74,6 +85,7 @@ public class SystemAccountController : Controller
     public async Task<IActionResult> Edit(short id)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var response = await client.GetAsync($"https://localhost:7100/api/SystemAccount/{id}");
         if (!response.IsSuccessStatusCode)
             return NotFound();
@@ -83,18 +95,19 @@ public class SystemAccountController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Edit(CreateSystemAccountViewModel model)
+    public async Task<IActionResult> Edit(short id, EditSystemAccountViewModel model)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var json = JsonSerializer.Serialize(new {
-            AccountId = model.AccountId,
+            AccountId = id,
             AccountName = model.AccountName,
             AccountEmail = model.AccountEmail,
             AccountRole = model.AccountRole,
             AccountPassword = model.AccountPassword
         });
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await client.PutAsync($"https://localhost:7100/api/SystemAccount/{model.AccountId}", content);
+        var response = await client.PutAsync($"https://localhost:7100/api/SystemAccount/{id}", content);
         if (response.IsSuccessStatusCode)
         {
             return RedirectToAction("Index");
@@ -108,8 +121,14 @@ public class SystemAccountController : Controller
     public async Task<IActionResult> Delete(short id)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var response = await client.DeleteAsync($"https://localhost:7100/api/SystemAccount/{id}");
-        // Optionally handle errors
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            TempData["DeleteError"] = error;
+            return RedirectToAction("Index");
+        }
         return RedirectToAction("Index");
     }
 }

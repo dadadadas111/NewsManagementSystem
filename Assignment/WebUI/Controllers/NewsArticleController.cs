@@ -43,6 +43,15 @@ public class NewsArticleController : Controller
         _httpClientFactory = httpClientFactory;
     }
 
+    private void AttachJwt(HttpClient client)
+    {
+        var token = HttpContext.Session.GetString("JWToken");
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+    }
+
     public async Task<IActionResult> Index(string? search, string? orderby, int? top, int? page)
     {
         var client = _httpClientFactory.CreateClient();
@@ -121,6 +130,7 @@ public class NewsArticleController : Controller
             return View(model);
         }
         var clientPost = _httpClientFactory.CreateClient();
+        AttachJwt(clientPost);
         var jsonPost = JsonSerializer.Serialize(model);
         var content = new StringContent(jsonPost, Encoding.UTF8, "application/json");
         var responsePost = await clientPost.PostAsync("https://localhost:7100/api/NewsArticle", content);
@@ -147,6 +157,7 @@ public class NewsArticleController : Controller
     public async Task<IActionResult> Edit(string id)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var response = await client.GetAsync($"https://localhost:7100/api/NewsArticle/{id}");
         if (!response.IsSuccessStatusCode)
         {
@@ -183,6 +194,8 @@ public class NewsArticleController : Controller
     [HttpPost]
     public async Task<IActionResult> Edit(string id, EditNewsArticleViewModel model)
     {
+        var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var updateDto = new
         {
             NewsTitle = model.NewsTitle,
@@ -193,7 +206,6 @@ public class NewsArticleController : Controller
             NewsStatus = model.NewsStatus,
             TagIds = model.TagIds
         };
-        var client = _httpClientFactory.CreateClient();
         var json = JsonSerializer.Serialize(updateDto);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         var response = await client.PutAsync($"https://localhost:7100/api/NewsArticle/{id}", content);
@@ -219,6 +231,7 @@ public class NewsArticleController : Controller
     public async Task<IActionResult> Delete(string id)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var response = await client.DeleteAsync($"https://localhost:7100/api/NewsArticle/{id}");
         // Optionally handle errors
         return RedirectToAction("Index");

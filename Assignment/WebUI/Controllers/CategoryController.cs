@@ -24,9 +24,19 @@ public class CategoryController : Controller
         _httpClientFactory = httpClientFactory;
     }
 
+    private void AttachJwt(HttpClient client)
+    {
+        var token = HttpContext.Session.GetString("JWToken");
+        if (!string.IsNullOrEmpty(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+    }
+
     public async Task<IActionResult> Index(string? orderby, int? top, int? skip)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var odataParams = new List<string>();
         if (!string.IsNullOrWhiteSpace(orderby)) odataParams.Add("$orderby=" + orderby);
         if (top.HasValue) odataParams.Add("$top=" + top);
@@ -42,6 +52,7 @@ public class CategoryController : Controller
     public async Task<IActionResult> Details(short id)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var response = await client.GetAsync($"https://localhost:7100/api/Category/{id}");
         if (!response.IsSuccessStatusCode)
         {
@@ -80,6 +91,7 @@ public class CategoryController : Controller
             return View(model);
         }
         var clientPost = _httpClientFactory.CreateClient();
+        AttachJwt(clientPost);
         var jsonPost = JsonSerializer.Serialize(model);
         var content = new StringContent(jsonPost, Encoding.UTF8, "application/json");
         var responsePost = await clientPost.PostAsync("https://localhost:7100/api/Category", content);
@@ -101,6 +113,7 @@ public class CategoryController : Controller
     public async Task<IActionResult> Edit(short id)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var response = await client.GetAsync($"https://localhost:7100/api/Category/{id}");
         if (!response.IsSuccessStatusCode)
         {
@@ -123,12 +136,13 @@ public class CategoryController : Controller
     [HttpPost]
     public async Task<IActionResult> Edit(short id, EditCategoryViewModel model)
     {
+        var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var updateDto = new
         {
             CategoryName = model.CategoryName,
             CategoryDescription = model.CategoryDescription
         };
-        var client = _httpClientFactory.CreateClient();
         var json = JsonSerializer.Serialize(updateDto);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         var response = await client.PutAsync($"https://localhost:7100/api/Category/{id}", content);
@@ -145,6 +159,7 @@ public class CategoryController : Controller
     public async Task<IActionResult> Delete(short id)
     {
         var client = _httpClientFactory.CreateClient();
+        AttachJwt(client);
         var response = await client.DeleteAsync($"https://localhost:7100/api/Category/{id}");
         // Optionally handle errors
         return RedirectToAction("Index");
