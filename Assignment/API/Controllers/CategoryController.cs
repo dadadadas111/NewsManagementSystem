@@ -38,6 +38,9 @@ public class CategoryController : ControllerBase
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+        // Duplicate name check
+        if (_service.GetAll().Any(c => c.CategoryName == dto.CategoryName))
+            return BadRequest("A category with this name already exists.");
         var category = new Category
         {
             CategoryName = dto.CategoryName,
@@ -71,8 +74,7 @@ public class CategoryController : ControllerBase
     [Authorize(Policy = "AdminOrStaff")]
     public IActionResult Delete(short id)
     {
-        var category = _service.GetById(id);
-        if (category != null && category.NewsArticles != null && category.NewsArticles.Count > 0)
+        if (_service.IsCategoryInUse(id))
         {
             return BadRequest("Cannot delete category: it is used by one or more news articles.");
         }

@@ -56,9 +56,11 @@ public class CategoryDAO
 
     public void Delete(short id)
     {
-        var category = context.Categories.Find(id);
+        var category = context.Categories.Include(c => c.NewsArticles).FirstOrDefault(c => c.CategoryId == id);
         if (category != null)
         {
+            category.NewsArticles.Clear(); // Clear related news articles
+            context.Categories.Attach(category);
             context.Categories.Remove(category);
             context.SaveChanges();
         }
@@ -67,5 +69,10 @@ public class CategoryDAO
     public List<Category> Search(string keyword)
     {
         return context.Categories.Where(c => c.CategoryName.Contains(keyword) || c.CategoryDesciption.Contains(keyword)).ToList();
+    }
+
+    public bool IsCategoryInUse(short categoryId)
+    {
+        return context.NewsArticles.AsNoTracking().Any(a => a.CategoryId == categoryId);
     }
 }

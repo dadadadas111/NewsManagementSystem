@@ -161,7 +161,12 @@ public class CategoryController : Controller
         var client = _httpClientFactory.CreateClient();
         AttachJwt(client);
         var response = await client.DeleteAsync($"https://localhost:7100/api/Category/{id}");
-        // Optionally handle errors
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            TempData["DeleteError"] = error;
+            return RedirectToAction("Index");
+        }
         return RedirectToAction("Index");
     }
 }

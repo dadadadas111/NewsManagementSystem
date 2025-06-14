@@ -13,4 +13,5 @@ public class CategoryService
     public void Update(Category category) => _repo.Update(category);
     public void Delete(short id) => _repo.Delete(id);
     public List<Category> Search(string keyword) => _repo.Search(keyword);
+    public bool IsCategoryInUse(short categoryId) => _repo.IsCategoryInUse(categoryId);
 }

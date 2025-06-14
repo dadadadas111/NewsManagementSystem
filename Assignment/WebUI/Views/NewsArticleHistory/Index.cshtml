@@ -1,5 +1,49 @@
+@model List<WebUI.Controllers.NewsArticleViewModel>
 @{
     ViewData["Title"] = "My News History";
 }
 <h2>My News History</h2>
-<!-- TODO: List news articles created by this user -->
+@if (ViewBag.ApiError != null)
+{
+    <div class="alert alert-danger">@ViewBag.ApiError</div>
+}
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">You have not created any news articles yet.</div>
+}
+else
+{
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Headline</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Tags</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.NewsTitle</td>
+                <td>@item.Headline</td>
+                <td>@item.Category?.CategoryName</td>
+                <td>@(item.NewsStatus == true ? "Active" : "Inactive")</td>
+                <td>@item.CreatedDate</td>
+                <td>
+                    @if (item.Tags != null && item.Tags.Count > 0)
+                    {
+                        foreach (var tag in item.Tags)
+                        {
+                            <span class="badge bg-secondary">@tag.TagName</span> 
+                        }
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

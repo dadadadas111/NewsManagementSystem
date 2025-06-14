@@ -43,6 +43,10 @@ public class NewsArticleController : ControllerBase
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+        // Get author from JWT
+        var userIdClaim = User.Claims.FirstOrDefault(c => string.Equals(c.Type, "AccountId", StringComparison.OrdinalIgnoreCase) || c.Type.EndsWith("/accountId", StringComparison.OrdinalIgnoreCase));
+        if (userIdClaim == null || !short.TryParse(userIdClaim.Value, out var authorId))
+            return Unauthorized("No valid accountId claim found in token.");
         // Generate a unique ID based on current time (yyyyMMddHHmmssfff + random digits if needed)
         var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
         var random = new Random();
@@ -56,7 +60,7 @@ public class NewsArticleController : ControllerBase
             NewsSource = dto.NewsSource,
             CategoryId = dto.CategoryId,
             NewsStatus = dto.NewsStatus,
-            CreatedById = dto.CreatedById,
+            CreatedById = authorId,
             CreatedDate = DateTime.UtcNow,
             // Tags will be set below
         };
@@ -71,7 +75,7 @@ public class NewsArticleController : ControllerBase
             }
         }
         _service.Add(newsArticle);
-        return CreatedAtAction(nameof(GetById), new { id = newsArticle.NewsArticleId }, newsArticle);
+        return CreatedAtAction(nameof(GetById), new { id = newsArticle.NewsArticleId }, NewsArticleMapper.ToDto(newsArticle));
     }
 
     [HttpPut("{id}")]
@@ -112,5 +116,21 @@ public class NewsArticleController : ControllerBase
     {
         _service.Delete(id);
         return NoContent();
+    }
+
+    [HttpGet("mine")]
+    [Authorize(Policy = "AdminOrStaff")]
+    public IActionResult GetMyArticles()
+    {
+        var userIdClaim = User.Claims.FirstOrDefault(c => string.Equals(c.Type, "AccountId", StringComparison.OrdinalIgnoreCase) || c.Type.EndsWith("/accountId", StringComparison.OrdinalIgnoreCase));
+        if (userIdClaim == null)
+            return Unauthorized("No accountId claim found in token.");
+        if (!short.TryParse(userIdClaim.Value, out var userId))
+            return BadRequest("Invalid accountId in token.");
+        var articles = _service.GetAll()
+            .Where(n => n.CreatedById == userId)
+            .Select(NewsArticleMapper.ToDto)
+            .ToList();
+        return Ok(articles);
     }
 }

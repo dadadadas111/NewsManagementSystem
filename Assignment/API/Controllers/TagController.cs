@@ -47,6 +47,9 @@ public class TagController : ControllerBase
         _logger.LogInformation($"TagController.Add called with TagName={dto.TagName}");
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+        // Duplicate name check
+        if (_service.GetAll().Any(t => t.TagName == dto.TagName))
+            return BadRequest("A tag with this name already exists.");
         var tag = new Tag
         {
             TagId = dto.TagId ?? 0, // Use supplied TagId if present, else 0 (auto-increment if not supplied)
@@ -81,7 +84,14 @@ public class TagController : ControllerBase
     public IActionResult Delete(int id)
     {
         _logger.LogInformation($"TagController.Delete called with id={id}");
-        _service.Delete(id);
+        try
+        {
+            _service.Delete(id);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
         return NoContent();
     }
 

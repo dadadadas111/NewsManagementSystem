@@ -11,4 +11,5 @@ public class CategoryRepository
     public void Update(Category category) => CategoryDAO.Instance.Update(category);
     public void Delete(short id) => CategoryDAO.Instance.Delete(id);
     public List<Category> Search(string keyword) => CategoryDAO.Instance.Search(keyword);
+    public bool IsCategoryInUse(short categoryId) => CategoryDAO.Instance.IsCategoryInUse(categoryId);
 }

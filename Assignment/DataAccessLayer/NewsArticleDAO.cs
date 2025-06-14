@@ -45,6 +45,7 @@ public class NewsArticleDAO
         foreach (var tag in tagsFromDb)
         {
             newsArticle.Tags.Add(tag);
+            context.Entry(tag).State = Microsoft.EntityFrameworkCore.EntityState.Unchanged;
         }
         context.NewsArticles.Add(newsArticle);
         context.SaveChanges();
@@ -79,9 +80,12 @@ public class NewsArticleDAO
 
     public void Delete(string id)
     {
-        var newsArticle = context.NewsArticles.Find(id);
+        var newsArticle = context.NewsArticles.Include(n => n.Tags).Include(n => n.Category).FirstOrDefault(n => n.NewsArticleId == id);
         if (newsArticle != null)
         {
+            // Remove all tag relationships first
+            newsArticle.Tags.Clear();
+            newsArticle.Category = null; // Clear the category 
             context.NewsArticles.Remove(newsArticle);
             context.SaveChanges();
         }

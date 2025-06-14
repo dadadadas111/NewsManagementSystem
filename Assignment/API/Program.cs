@@ -82,7 +82,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("StaffOnly", policy => policy.RequireRole("Staff"));
-    options.AddPolicy("AdminOrStaff", policy => policy.RequireRole("Admin", "Staff"));
+    options.AddPolicy("AdminOrStaff", policy => policy.RequireRole("Admin", "Staff", "Lecturer"));
 });
 
 var app = builder.Build();

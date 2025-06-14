@@ -14,6 +14,10 @@
 
 <h2 class="text-center mb-4">Categories</h2>
 <div class="container">
+    @if (TempData["DeleteError"] != null)
+    {
+        <div class="alert alert-danger">@TempData["DeleteError"]</div>
+    }
     <div class="row mb-3">
         <div class="col-md-6">
             <form asp-action="Index" method="get" class="row g-2">
