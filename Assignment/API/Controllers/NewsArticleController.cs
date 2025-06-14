@@ -133,4 +133,17 @@ public class NewsArticleController : ControllerBase
             .ToList();
         return Ok(articles);
     }
+
+    [HttpGet("report")]
+    [Authorize(Policy = "AdminOnly")]
+    public IActionResult GetReportByPeriod([FromQuery][Required] DateTime startDate, [FromQuery][Required] DateTime endDate)
+    {
+        if (endDate < startDate)
+            return BadRequest("EndDate must be after StartDate.");
+        var articles = _service.GetByPeriod(startDate, endDate)
+            .Where(n => n.NewsStatus == true)
+            .Select(NewsArticleMapper.ToDto)
+            .ToList();
+        return Ok(articles);
+    }
 }

@@ -11,4 +11,5 @@ public class NewsArticleRepository
     public void Update(NewsArticle newsArticle) => NewsArticleDAO.Instance.Update(newsArticle);
     public void Delete(string id) => NewsArticleDAO.Instance.Delete(id);
     public List<NewsArticle> Search(string keyword) => NewsArticleDAO.Instance.Search(keyword);
+    public List<NewsArticle> GetByPeriod(DateTime startDate, DateTime endDate) => NewsArticleDAO.Instance.GetByPeriod(startDate, endDate);
 }

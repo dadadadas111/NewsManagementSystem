@@ -8,12 +8,8 @@ public class NewsArticleDAO
 {
     private static NewsArticleDAO? instance;
     private static readonly object lockObj = new();
-    private readonly FUNewsManagementContext context;
 
-    private NewsArticleDAO()
-    {
-        context = new FUNewsManagementContext();
-    }
+    private NewsArticleDAO() { }
 
     public static NewsArticleDAO Instance
     {
@@ -28,17 +24,19 @@ public class NewsArticleDAO
 
     public List<NewsArticle> GetAll()
     {
+        using var context = new FUNewsManagementContext();
         return context.NewsArticles.Include(n => n.Category).Include(n => n.CreatedBy).Include(n => n.Tags).ToList();
     }
 
     public NewsArticle? GetById(string id)
     {
+        using var context = new FUNewsManagementContext();
         return context.NewsArticles.Include(n => n.Category).Include(n => n.CreatedBy).Include(n => n.Tags).FirstOrDefault(n => n.NewsArticleId == id);
     }
 
     public void Add(NewsArticle newsArticle)
     {
-        // Fix: Attach tags from the current context to avoid tracking conflicts
+        using var context = new FUNewsManagementContext();
         var tagIds = newsArticle.Tags.Select(t => t.TagId).Distinct().ToList();
         newsArticle.Tags.Clear();
         var tagsFromDb = context.Tags.Where(t => tagIds.Contains(t.TagId)).ToList();
@@ -53,6 +51,7 @@ public class NewsArticleDAO
 
     public void Update(NewsArticle newsArticle)
     {
+        using var context = new FUNewsManagementContext();
         var existing = context.NewsArticles.Include(n => n.Tags).FirstOrDefault(n => n.NewsArticleId == newsArticle.NewsArticleId);
         if (existing != null)
         {
@@ -80,6 +79,7 @@ public class NewsArticleDAO
 
     public void Delete(string id)
     {
+        using var context = new FUNewsManagementContext();
         var newsArticle = context.NewsArticles.Include(n => n.Tags).Include(n => n.Category).FirstOrDefault(n => n.NewsArticleId == id);
         if (newsArticle != null)
         {
@@ -93,6 +93,19 @@ public class NewsArticleDAO
 
     public List<NewsArticle> Search(string keyword)
     {
+        using var context = new FUNewsManagementContext();
         return context.NewsArticles.Where(n => n.NewsTitle!.Contains(keyword) || n.Headline.Contains(keyword)).ToList();
+    }
+
+    public List<NewsArticle> GetByPeriod(DateTime startDate, DateTime endDate)
+    {
+        using var context = new FUNewsManagementContext();
+        return context.NewsArticles
+            .Where(n => n.CreatedDate >= startDate && n.CreatedDate <= endDate)
+            .OrderByDescending(n => n.CreatedDate)
+            .Include(n => n.Category)
+            .Include(n => n.CreatedBy)
+            .Include(n => n.Tags)
+            .ToList();
     }
 }

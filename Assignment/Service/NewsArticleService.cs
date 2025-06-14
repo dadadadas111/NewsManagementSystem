@@ -13,4 +13,5 @@ public class NewsArticleService
     public void Update(NewsArticle newsArticle) => _repo.Update(newsArticle);
     public void Delete(string id) => _repo.Delete(id);
     public List<NewsArticle> Search(string keyword) => _repo.Search(keyword);
+    public List<NewsArticle> GetByPeriod(DateTime startDate, DateTime endDate) => _repo.GetByPeriod(startDate, endDate);
 }
