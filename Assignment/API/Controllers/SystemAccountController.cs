@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Service;
@@ -11,6 +12,7 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "AdminOnly")]
 public class SystemAccountController : ControllerBase
 {
     private readonly SystemAccountService _service = new();
@@ -81,6 +83,11 @@ public class SystemAccountController : ControllerBase
     public IActionResult Delete(short id)
     {
         _logger.LogInformation($"SystemAccountController.Delete called with id={id}");
+        var account = _service.GetById(id);
+        if (account != null && account.NewsArticles != null && account.NewsArticles.Count > 0)
+        {
+            return BadRequest("Cannot delete account: this account has created one or more news articles.");
+        }
         _service.Delete(id);
         return NoContent();
     }

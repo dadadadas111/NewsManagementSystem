@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Service;
@@ -11,6 +12,7 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "AdminOrStaff")]
 public class TagController : ControllerBase
 {
     private readonly TagService _service = new();

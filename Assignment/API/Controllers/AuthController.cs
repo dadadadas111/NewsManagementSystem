@@ -39,7 +39,7 @@ public class AuthController : ControllerBase
         var account = _accountService.GetAll().FirstOrDefault(a => a.AccountName == dto.Username || a.AccountEmail == dto.Username);
         if (account != null && account.AccountPassword == dto.Password)
         {
-            string role = account.AccountRole == 1 ? "Admin" : account.AccountRole == 2 ? "Staff" : "User";
+            string role = account.AccountRole == 1 ? "Staff" : "Lecturer"; // Assuming 1 is Staff, 2 is Lecturer
             var token = GenerateJwtToken(account.AccountEmail ?? account.AccountName ?? string.Empty, role, account.AccountId);
             return Ok(new LoginResponseDto { Token = token, Username = account.AccountEmail ?? account.AccountName ?? string.Empty, Role = role, AccountId = account.AccountId });
         }

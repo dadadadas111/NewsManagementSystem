@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 using BussinessObject.Models;
@@ -15,10 +16,11 @@ public class NewsArticleController : ControllerBase
     private readonly NewsArticleService _service = new();
 
     [HttpGet]
+    [AllowAnonymous]
     [EnableQuery]
     public IQueryable<NewsArticleDto> GetAll([FromQuery] string? search)
     {
-        var query = _service.GetAll().AsQueryable();
+        var query = _service.GetAll().Where(n => n.NewsStatus == true).AsQueryable();
         if (!string.IsNullOrWhiteSpace(search))
         {
             query = query.Where(n => (n.NewsTitle != null && n.NewsTitle.Contains(search)) || (n.Headline != null && n.Headline.Contains(search)));
@@ -27,14 +29,16 @@ public class NewsArticleController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public IActionResult GetById(string id)
     {
         var item = _service.GetById(id);
-        if (item == null) return NotFound();
+        if (item == null || item.NewsStatus != true) return NotFound();
         return Ok(NewsArticleMapper.ToDto(item));
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOrStaff")]
     public IActionResult Add([FromBody] CreateNewsArticleDto dto)
     {
         if (!ModelState.IsValid)
@@ -71,6 +75,7 @@ public class NewsArticleController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Policy = "AdminOrStaff")]
     public IActionResult Update(string id, [FromBody] UpdateNewsArticleDto dto)
     {
         if (!ModelState.IsValid)
@@ -102,6 +107,7 @@ public class NewsArticleController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOrStaff")]
     public IActionResult Delete(string id)
     {
         _service.Delete(id);

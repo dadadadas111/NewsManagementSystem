@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Service;
@@ -15,6 +16,7 @@ public class CategoryController : ControllerBase
     private readonly CategoryService _service = new();
 
     [HttpGet]
+    [AllowAnonymous]
     [EnableQuery]
     public IQueryable<CategoryDto> GetAll()
     {
@@ -22,6 +24,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public IActionResult GetById(short id)
     {
         var item = _service.GetById(id);
@@ -30,6 +33,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOrStaff")]
     public IActionResult Add([FromBody] CreateCategoryDto dto)
     {
         if (!ModelState.IsValid)
@@ -46,6 +50,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Policy = "AdminOrStaff")]
     public IActionResult Update(short id, [FromBody] UpdateCategoryDto dto)
     {
         if (!ModelState.IsValid)
@@ -63,8 +68,14 @@ public class CategoryController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOrStaff")]
     public IActionResult Delete(short id)
     {
+        var category = _service.GetById(id);
+        if (category != null && category.NewsArticles != null && category.NewsArticles.Count > 0)
+        {
+            return BadRequest("Cannot delete category: it is used by one or more news articles.");
+        }
         _service.Delete(id);
         return NoContent();
     }
