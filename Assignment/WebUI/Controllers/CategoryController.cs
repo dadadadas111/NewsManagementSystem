@@ -96,4 +96,57 @@ public class CategoryController : Controller
         ViewBag.ParentCategories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(categories3, "CategoryId", "CategoryName");
         return View(model);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(short id)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.GetAsync($"https://localhost:7100/api/Category/{id}");
+        if (!response.IsSuccessStatusCode)
+        {
+            return NotFound();
+        }
+        var json = await response.Content.ReadAsStringAsync();
+        var category = JsonSerializer.Deserialize<CategoryViewModel>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        if (category == null)
+        {
+            return NotFound();
+        }
+        var model = new EditCategoryViewModel
+        {
+            CategoryName = category.CategoryName,
+            CategoryDescription = category.CategoryDescription
+        };
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(short id, EditCategoryViewModel model)
+    {
+        var updateDto = new
+        {
+            CategoryName = model.CategoryName,
+            CategoryDescription = model.CategoryDescription
+        };
+        var client = _httpClientFactory.CreateClient();
+        var json = JsonSerializer.Serialize(updateDto);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await client.PutAsync($"https://localhost:7100/api/Category/{id}", content);
+        if (response.IsSuccessStatusCode)
+        {
+            return RedirectToAction("Index");
+        }
+        var error = await response.Content.ReadAsStringAsync();
+        ViewBag.ApiError = error;
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Delete(short id)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.DeleteAsync($"https://localhost:7100/api/Category/{id}");
+        // Optionally handle errors
+        return RedirectToAction("Index");
+    }
 }

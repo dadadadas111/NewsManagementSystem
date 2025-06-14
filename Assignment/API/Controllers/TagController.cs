@@ -5,6 +5,7 @@ using BussinessObject.Models;
 using API.DTOs;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Logging;
 
 namespace API.Controllers;
 
@@ -13,17 +14,24 @@ namespace API.Controllers;
 public class TagController : ControllerBase
 {
     private readonly TagService _service = new();
+    private readonly ILogger<TagController> _logger;
+    public TagController(ILogger<TagController> logger)
+    {
+        _logger = logger;
+    }
 
     [HttpGet]
     [EnableQuery]
     public IQueryable<TagDto> GetAll()
     {
+        _logger.LogInformation("TagController.GetAll called");
         return _service.GetAll().Select(TagMapper.ToDto).AsQueryable();
     }
 
     [HttpGet("{id}")]
     public IActionResult GetById(int id)
     {
+        _logger.LogInformation($"TagController.GetById called with id={id}");
         var item = _service.GetById(id);
         if (item == null) return NotFound();
         return Ok(TagMapper.ToDto(item));
@@ -32,6 +40,7 @@ public class TagController : ControllerBase
     [HttpPost]
     public IActionResult Add([FromBody] CreateTagDto dto)
     {
+        _logger.LogInformation($"TagController.Add called with TagName={dto.TagName}");
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         var tag = new Tag
@@ -45,16 +54,27 @@ public class TagController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(int id, Tag tag)
+    public IActionResult Update(int id, [FromBody] UpdateTagDto dto)
     {
-        if (id != tag.TagId) return BadRequest();
+        _logger.LogInformation($"TagController.Update called with id={id}, TagName={dto.TagName}");
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        var tag = new Tag
+        {
+            TagId = id,
+            TagName = dto.TagName,
+            Note = dto.Note
+        };
         _service.Update(tag);
-        return NoContent();
+        var updated = _service.GetById(id);
+        if (updated == null) return NotFound();
+        return Ok(TagMapper.ToDto(updated));
     }
 
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
+        _logger.LogInformation($"TagController.Delete called with id={id}");
         _service.Delete(id);
         return NoContent();
     }

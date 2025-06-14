@@ -44,6 +44,11 @@ public class SystemAccountDAO
 
     public void Update(SystemAccount account)
     {
+        var local = context.SystemAccounts.Local.FirstOrDefault(a => a.AccountId == account.AccountId);
+        if (local != null)
+        {
+            context.Entry(local).State = EntityState.Detached;
+        }
         context.SystemAccounts.Update(account);
         context.SaveChanges();
     }

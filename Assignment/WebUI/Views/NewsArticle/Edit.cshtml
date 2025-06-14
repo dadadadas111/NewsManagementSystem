@@ -1,0 +1,55 @@
+@model WebUI.Models.EditNewsArticleViewModel
+@{
+    ViewData["Title"] = "Edit News Article";
+}
+<h2>Edit News Article</h2>
+@if (ViewBag.ApiError != null)
+{
+    <div class="alert alert-danger">@ViewBag.ApiError</div>
+}
+<form asp-action="Edit" method="post">
+    <div class="form-group">
+        <label asp-for="NewsTitle"></label>
+        <input asp-for="NewsTitle" class="form-control" />
+        <span asp-validation-for="NewsTitle" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Headline"></label>
+        <input asp-for="Headline" class="form-control" />
+        <span asp-validation-for="Headline" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="NewsContent"></label>
+        <textarea asp-for="NewsContent" class="form-control"></textarea>
+        <span asp-validation-for="NewsContent" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="NewsSource"></label>
+        <input asp-for="NewsSource" class="form-control" />
+        <span asp-validation-for="NewsSource" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CategoryId">Category</label>
+        <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-control"></select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="TagIds">Tags</label>
+        <select asp-for="TagIds" asp-items="ViewBag.Tags" class="form-control" multiple></select>
+        <span asp-validation-for="TagIds" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="NewsStatus">Status</label>
+        <select asp-for="NewsStatus" class="form-control">
+            <option value="">-- Select Status --</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+        </select>
+        <span asp-validation-for="NewsStatus" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

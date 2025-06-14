@@ -66,4 +66,45 @@ public class TagController : Controller
         ViewBag.ApiError = error;
         return View(model);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.GetAsync($"https://localhost:7100/api/Tag/{id}");
+        if (!response.IsSuccessStatusCode)
+            return NotFound();
+        var json = await response.Content.ReadAsStringAsync();
+        var tag = JsonSerializer.Deserialize<CreateTagViewModel>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        return View(tag);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(CreateTagViewModel model)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var json = JsonSerializer.Serialize(new {
+            TagId = model.TagId,
+            TagName = model.TagName,
+            Note = model.Note
+        });
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await client.PutAsync($"https://localhost:7100/api/Tag/{model.TagId}", content);
+        if (response.IsSuccessStatusCode)
+        {
+            return RedirectToAction("Index");
+        }
+        var error = await response.Content.ReadAsStringAsync();
+        ViewBag.ApiError = error;
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.DeleteAsync($"https://localhost:7100/api/Tag/{id}");
+        // Optionally handle errors
+        return RedirectToAction("Index");
+    }
 }

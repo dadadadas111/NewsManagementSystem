@@ -5,6 +5,7 @@ using BussinessObject.Models;
 using API.DTOs;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Logging;
 
 namespace API.Controllers;
 
@@ -13,17 +14,25 @@ namespace API.Controllers;
 public class SystemAccountController : ControllerBase
 {
     private readonly SystemAccountService _service = new();
+    private readonly ILogger<SystemAccountController> _logger;
+
+    public SystemAccountController(ILogger<SystemAccountController> logger)
+    {
+        _logger = logger;
+    }
 
     [HttpGet]
     [EnableQuery]
     public IQueryable<SystemAccountDto> GetAll()
     {
+        _logger.LogInformation("SystemAccountController.GetAll called");
         return _service.GetAll().Select(SystemAccountMapper.ToDto).AsQueryable();
     }
 
     [HttpGet("{id}")]
     public IActionResult GetById(short id)
     {
+        _logger.LogInformation($"SystemAccountController.GetById called with id={id}");
         var item = _service.GetById(id);
         if (item == null) return NotFound();
         return Ok(SystemAccountMapper.ToDto(item));
@@ -32,6 +41,7 @@ public class SystemAccountController : ControllerBase
     [HttpPost]
     public IActionResult Add([FromBody] CreateSystemAccountDto dto)
     {
+        _logger.LogInformation($"SystemAccountController.Add called with AccountName={dto.AccountName}");
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         var account = new SystemAccount
@@ -47,16 +57,30 @@ public class SystemAccountController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(short id, SystemAccount account)
+    public IActionResult Update(short id, [FromBody] UpdateSystemAccountDto dto)
     {
-        if (id != account.AccountId) return BadRequest();
+        _logger.LogInformation($"SystemAccountController.Update called with id={id}, AccountName={dto.AccountName}");
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        var account = new SystemAccount
+        {
+            AccountId = id,
+            AccountName = dto.AccountName,
+            AccountEmail = dto.AccountEmail,
+            AccountRole = dto.AccountRole,
+            AccountPassword = dto.AccountPassword
+        };
         _service.Update(account);
-        return NoContent();
+        // Fetch updated entity and return as DTO
+        var updated = _service.GetById(id);
+        if (updated == null) return NotFound();
+        return Ok(SystemAccountMapper.ToDto(updated));
     }
 
     [HttpDelete("{id}")]
     public IActionResult Delete(short id)
     {
+        _logger.LogInformation($"SystemAccountController.Delete called with id={id}");
         _service.Delete(id);
         return NoContent();
     }

@@ -142,4 +142,85 @@ public class NewsArticleController : Controller
         ViewBag.Tags = new Microsoft.AspNetCore.Mvc.Rendering.MultiSelectList(tags2, "TagId", "TagName");
         return View(model);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(string id)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.GetAsync($"https://localhost:7100/api/NewsArticle/{id}");
+        if (!response.IsSuccessStatusCode)
+        {
+            return NotFound();
+        }
+        var json = await response.Content.ReadAsStringAsync();
+        var article = JsonSerializer.Deserialize<NewsArticleViewModel>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        if (article == null)
+        {
+            return NotFound();
+        }
+        var model = new EditNewsArticleViewModel
+        {
+            NewsTitle = article.NewsTitle,
+            Headline = article.Headline,
+            NewsContent = article.NewsContent,
+            NewsSource = article.NewsSource,
+            CategoryId = article.Category?.CategoryId,
+            NewsStatus = article.NewsStatus,
+            TagIds = article.Tags?.ConvertAll(t => t.TagId) ?? new List<int>()
+        };
+        // Fetch categories and tags for select lists
+        var catResponse = await client.GetAsync("https://localhost:7100/api/Category");
+        var catJson = await catResponse.Content.ReadAsStringAsync();
+        var categories = JsonSerializer.Deserialize<List<CategoryDto>>(catJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        ViewBag.Categories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(categories, "CategoryId", "CategoryName");
+        var tagResponse = await client.GetAsync("https://localhost:7100/api/Tag");
+        var tagJson = await tagResponse.Content.ReadAsStringAsync();
+        var tags = JsonSerializer.Deserialize<List<TagDto>>(tagJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        ViewBag.Tags = new Microsoft.AspNetCore.Mvc.Rendering.MultiSelectList(tags, "TagId", "TagName");
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(string id, EditNewsArticleViewModel model)
+    {
+        var updateDto = new
+        {
+            NewsTitle = model.NewsTitle,
+            Headline = model.Headline,
+            NewsContent = model.NewsContent,
+            NewsSource = model.NewsSource,
+            CategoryId = model.CategoryId,
+            NewsStatus = model.NewsStatus,
+            TagIds = model.TagIds
+        };
+        var client = _httpClientFactory.CreateClient();
+        var json = JsonSerializer.Serialize(updateDto);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await client.PutAsync($"https://localhost:7100/api/NewsArticle/{id}", content);
+        if (response.IsSuccessStatusCode)
+        {
+            return RedirectToAction("Index");
+        }
+        var error = await response.Content.ReadAsStringAsync();
+        ViewBag.ApiError = error;
+        // Repopulate select lists on error
+        var catResponse = await client.GetAsync("https://localhost:7100/api/Category");
+        var catJson = await catResponse.Content.ReadAsStringAsync();
+        var categories = JsonSerializer.Deserialize<List<CategoryDto>>(catJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        ViewBag.Categories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(categories, "CategoryId", "CategoryName");
+        var tagResponse = await client.GetAsync("https://localhost:7100/api/Tag");
+        var tagJson = await tagResponse.Content.ReadAsStringAsync();
+        var tags = JsonSerializer.Deserialize<List<TagDto>>(tagJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        ViewBag.Tags = new Microsoft.AspNetCore.Mvc.Rendering.MultiSelectList(tags, "TagId", "TagName");
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.DeleteAsync($"https://localhost:7100/api/NewsArticle/{id}");
+        // Optionally handle errors
+        return RedirectToAction("Index");
+    }
 }

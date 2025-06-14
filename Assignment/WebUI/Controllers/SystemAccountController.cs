@@ -69,4 +69,47 @@ public class SystemAccountController : Controller
         ViewBag.ApiError = error;
         return View(model);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(short id)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.GetAsync($"https://localhost:7100/api/SystemAccount/{id}");
+        if (!response.IsSuccessStatusCode)
+            return NotFound();
+        var json = await response.Content.ReadAsStringAsync();
+        var account = JsonSerializer.Deserialize<CreateSystemAccountViewModel>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        return View(account);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(CreateSystemAccountViewModel model)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var json = JsonSerializer.Serialize(new {
+            AccountId = model.AccountId,
+            AccountName = model.AccountName,
+            AccountEmail = model.AccountEmail,
+            AccountRole = model.AccountRole,
+            AccountPassword = model.AccountPassword
+        });
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await client.PutAsync($"https://localhost:7100/api/SystemAccount/{model.AccountId}", content);
+        if (response.IsSuccessStatusCode)
+        {
+            return RedirectToAction("Index");
+        }
+        var error = await response.Content.ReadAsStringAsync();
+        ViewBag.ApiError = error;
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Delete(short id)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.DeleteAsync($"https://localhost:7100/api/SystemAccount/{id}");
+        // Optionally handle errors
+        return RedirectToAction("Index");
+    }
 }

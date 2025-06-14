@@ -44,6 +44,11 @@ public class TagDAO
 
     public void Update(Tag tag)
     {
+        var local = context.Tags.Local.FirstOrDefault(t => t.TagId == tag.TagId);
+        if (local != null)
+        {
+            context.Entry(local).State = EntityState.Detached;
+        }
         context.Tags.Update(tag);
         context.SaveChanges();
     }

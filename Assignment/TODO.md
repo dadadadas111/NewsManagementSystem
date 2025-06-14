@@ -18,14 +18,23 @@ DONE
 
 ## 3. Update Functionality
 ### API
-- Implement PUT endpoints for updating entities if not already present.
-- Apply the same validation as in create functionality.
+- DONE: Implement PUT endpoints for updating entities using Update DTOs.
+- DONE: Apply the same validation as in create functionality.
 
 ### WebUI
-- Add edit forms for each entity, pre-populated with existing data.
-- Use the same UI/UX standards as the create forms.
+- DONE: Add edit forms for each entity, pre-populated with existing data.
+- DONE: Use the same UI/UX standards as the create forms.
+- DONE: Sync edit forms with API and handle API validation errors.
 
-## 4. Authentication and Authorization
+## 4. Delete Functionality
+### API
+- DONE: Implement DELETE endpoints for all entities (NewsArticle, Category, Tag, SystemAccount).
+
+### WebUI
+- DONE: Add delete buttons and confirmation modals for all entities.
+- DONE: Sync delete actions with API and update UI after deletion.
+
+## 5. Authentication and Authorization
 ### API
 - Add endpoints for user registration and login (e.g., /api/auth/register, /api/auth/login).
 - Implement JWT-based authentication.
@@ -38,13 +47,7 @@ DONE
 - Show/hide UI elements based on user role (e.g., hide admin features for regular users).
 - Implement logout functionality.
 
-## 5. Additional Tasks
-- Add error handling and user-friendly error messages in both API and WebUI.
-- Add loading indicators and feedback for async operations in the WebUI.
-- Write unit and integration tests for API endpoints and WebUI forms.
-- Improve API and UI documentation (Swagger for API, help text/tooltips for UI).
-- Refactor and clean up code for maintainability (e.g., use AutoMapper for DTO mapping, organize services/repositories).
-- Ensure accessibility (a11y) and responsive design for all WebUI pages.
-- Add support for soft delete (mark as inactive) for entities if required.
-- Implement audit logging for create/update/delete actions.
+---
+
+**All CRUD (Create, Read, Update, Delete) functionality is now complete and fully synchronized between API and WebUI.**
 

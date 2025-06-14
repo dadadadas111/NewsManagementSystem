@@ -71,11 +71,34 @@ public class NewsArticleController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(string id, NewsArticle newsArticle)
+    public IActionResult Update(string id, [FromBody] UpdateNewsArticleDto dto)
     {
-        if (id != newsArticle.NewsArticleId) return BadRequest();
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        var newsArticle = new NewsArticle
+        {
+            NewsArticleId = id,
+            NewsTitle = dto.NewsTitle ?? string.Empty,
+            Headline = dto.Headline ?? string.Empty,
+            NewsContent = dto.NewsContent,
+            NewsSource = dto.NewsSource,
+            CategoryId = dto.CategoryId,
+            NewsStatus = dto.NewsStatus,
+            CreatedById = dto.CreatedById,
+            // Tags will be set below
+        };
+        if (dto.TagIds != null && dto.TagIds.Count > 0)
+        {
+            foreach (var tagId in dto.TagIds.Distinct())
+            {
+                var tag = new BussinessObject.Models.Tag { TagId = tagId };
+                newsArticle.Tags.Add(tag);
+            }
+        }
         _service.Update(newsArticle);
-        return NoContent();
+        var updated = _service.GetById(id);
+        if (updated == null) return NotFound();
+        return Ok(NewsArticleMapper.ToDto(updated));
     }
 
     [HttpDelete("{id}")]

@@ -44,8 +44,14 @@ public class CategoryDAO
 
     public void Update(Category category)
     {
-        context.Categories.Update(category);
-        context.SaveChanges();
+        var existing = context.Categories.Find(category.CategoryId);
+        if (existing != null)
+        {
+            existing.CategoryName = category.CategoryName;
+            existing.CategoryDesciption = category.CategoryDesciption;
+            // Update other properties as needed
+            context.SaveChanges();
+        }
     }
 
     public void Delete(short id)

@@ -52,8 +52,29 @@ public class NewsArticleDAO
 
     public void Update(NewsArticle newsArticle)
     {
-        context.NewsArticles.Update(newsArticle);
-        context.SaveChanges();
+        var existing = context.NewsArticles.Include(n => n.Tags).FirstOrDefault(n => n.NewsArticleId == newsArticle.NewsArticleId);
+        if (existing != null)
+        {
+            existing.NewsTitle = newsArticle.NewsTitle;
+            existing.Headline = newsArticle.Headline;
+            existing.NewsContent = newsArticle.NewsContent;
+            existing.NewsSource = newsArticle.NewsSource;
+            existing.CategoryId = newsArticle.CategoryId;
+            existing.NewsStatus = newsArticle.NewsStatus;
+            existing.CreatedById = newsArticle.CreatedById;
+            // Update tags
+            existing.Tags.Clear();
+            if (newsArticle.Tags != null && newsArticle.Tags.Count > 0)
+            {
+                var tagIds = newsArticle.Tags.Select(t => t.TagId).Distinct().ToList();
+                var tagsFromDb = context.Tags.Where(t => tagIds.Contains(t.TagId)).ToList();
+                foreach (var tag in tagsFromDb)
+                {
+                    existing.Tags.Add(tag);
+                }
+            }
+            context.SaveChanges();
+        }
     }
 
     public void Delete(string id)

@@ -101,25 +101,10 @@
                 <td>@item.CreatedDate</td>
                 <td>
                     <a asp-action="Details" asp-route-id="@item.NewsArticleId" class="btn btn-sm btn-info me-1">Details</a>
-                    <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#editModal-@item.NewsArticleId">Edit</button>
+                    <a asp-action="Edit" asp-route-id="@item.NewsArticleId" class="btn btn-sm btn-warning me-1">Edit</a>
                     <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@item.NewsArticleId">Delete</button>
                 </td>
             </tr>
-            <!-- Edit Modal -->
-            <div class="modal fade" id="editModal-@item.NewsArticleId" tabindex="-1" aria-labelledby="editModalLabel-@item.NewsArticleId" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editModalLabel-@item.NewsArticleId">Edit Article</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <!-- Edit form goes here (to be implemented) -->
-                            <div class="alert alert-info">Edit form coming soon.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <!-- Delete Modal -->
             <div class="modal fade" id="deleteModal-@item.NewsArticleId" tabindex="-1" aria-labelledby="deleteModalLabel-@item.NewsArticleId" aria-hidden="true">
                 <div class="modal-dialog">

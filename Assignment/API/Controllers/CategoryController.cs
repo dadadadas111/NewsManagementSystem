@@ -46,11 +46,20 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(short id, Category category)
+    public IActionResult Update(short id, [FromBody] UpdateCategoryDto dto)
     {
-        if (id != category.CategoryId) return BadRequest();
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        var category = new Category
+        {
+            CategoryId = id,
+            CategoryName = dto.CategoryName ?? string.Empty,
+            CategoryDesciption = dto.CategoryDescription ?? string.Empty
+        };
         _service.Update(category);
-        return NoContent();
+        var updated = _service.GetById(id);
+        if (updated == null) return NotFound();
+        return Ok(CategoryMapper.ToDto(updated));
     }
 
     [HttpDelete("{id}")]
